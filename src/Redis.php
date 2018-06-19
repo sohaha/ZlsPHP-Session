@@ -1,5 +1,7 @@
 <?php
+
 namespace Zls\Session;
+
 /**
  * Redis托管
  * @author        影浅
@@ -8,24 +10,27 @@ namespace Zls\Session;
  * @link          ---
  * @since         v0.0.1
  * @updatetime    2018-1-26 18:04:33
+ * return new \Zls\Session\Redis(['path' => 'tcp://127.0.0.1:6379?timeout=3&persistent=0']);
  */
 use Z;
+
 class Redis extends \Zls_Session
 {
     private $sessionHandle;
-    private $sessionID = '';
     private $sessionConfig = [];
-    public function init($sessionID)
+
+    public function init()
     {
         ini_set('session.save_handler', 'redis');
         ini_set('session.save_path', $this->config['path']);
     }
-    public function swooleInit($sessionID)
+
+    public function swooleInit($sessionId)
     {
         $sessionConfig = Z::config()->getSessionConfig();
         $path = $this->config['path'];
         $config = [
-            'class'  => 'Zls\Cache\Redis',
+            'class'  => '\Zls\Cache\Redis',
             'config' => [],
         ];
         $masters = \explode(',', $path);
@@ -48,25 +53,26 @@ class Redis extends \Zls_Session
                 'slaves' => [],
             ];
         }
-        $this->sessionID = $sessionID;
         $this->sessionHandle = Z::cache($config);
         $this->sessionConfig = $sessionConfig;
-        $session = @unserialize($this->sessionHandle->get($this->sessionID));
+        $session = $this->swooleRead($sessionId);
         $_SESSION = !is_null($session) && is_array($session) ? $session : [];
     }
-    public function swooleGet($key = null)
+
+    public function swooleRead($sessionId)
     {
-        return $_SESSION;
+        return unserialize($this->sessionHandle->get($sessionId));
     }
-    public function swooleUnset($key)
+
+    public function swooleDestroy($sessionId)
     {
-        return $key ? $this->swooleSet(null) : $this->sessionHandle->delete($this->sessionID);
+        return $this->sessionHandle->delete($sessionId);
     }
-    public function swooleSet($key, $value = null)
+
+    public function swooleWrite($sessionId, $sessionData)
     {
-        $sessionName = $this->sessionConfig['session_name'];
-        $sessionID = z::cookieRaw($sessionName);
-        z::setCookieRaw($sessionName, $sessionID, time() + $this->sessionConfig['lifetime'], '/');
-        return $this->sessionHandle->set($this->sessionID, serialize($_SESSION), $this->sessionConfig['lifetime']);
+        return $this->sessionHandle->set($sessionId, serialize($sessionData), $this->sessionConfig['lifetime']);
     }
+
+
 }

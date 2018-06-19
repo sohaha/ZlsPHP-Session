@@ -1,5 +1,7 @@
 <?php
+
 namespace Zls\Session;
+
 /**
  * Mongodb托管
  * @author      影浅-Seekwe
@@ -8,7 +10,7 @@ namespace Zls\Session;
  * Time:        19:49
  */
 /*
-return new Zls_Session_Mongodb(array(
+return new \Zls\Session\Mongodb(array(
     'host' => '127.0.0.1', //mongodb主机地址
     'port' => 27017, //端口
     'user' => 'root',
@@ -23,41 +25,34 @@ return new Zls_Session_Mongodb(array(
 );
 */
 use Z;
+
 class Mongodb extends \Zls_Session
 {
     private $__mongo_collection = null;
     private $__current_session = null;
     private $__mongo_conn = null;
+
     public function __construct($configFileName)
     {
         parent::__construct($configFileName);
         $cfg = Z::config()->getSessionConfig();
         $this->config['lifetime'] = $cfg['lifetime'];
     }
+
     public function init($sessionID)
     {
         session_set_save_handler([&$this, 'open'], [&$this, 'close'], [&$this, 'read'],
             [&$this, 'write'], [&$this, 'destroy'], [&$this, 'gc']
         );
     }
-    public function swooleInit($sessionID)
-    {
-        $_SESSION = [];
-    }
-    public function swooleGet($key)
-    {
-    }
-    public function swooleUnset($key)
-    {
-    }
-    public function swooleSet($key, $value)
-    {
-    }
+
     public function open($session_path, $session_name)
     {
         $this->connect();
+
         return true;
     }
+
     public function connect()
     {
         if (is_object($this->__mongo_collection)) {
@@ -87,14 +82,17 @@ class Mongodb extends \Zls_Session
             throw new \Zls_Exception_500('can not connect to mongodb server');
         }
     }
+
     /**
      * @return bool
      */
     public function close()
     {
         $this->__mongo_conn->close();
+
         return true;
     }
+
     /**
      * @param $session_id
      * @return string
@@ -113,8 +111,10 @@ class Mongodb extends \Zls_Session
             $this->__mongo_collection->update(["_id" => $session_id], $result);
             $ret = $result['data'];
         }
+
         return $ret;
     }
+
     public function write($session_id, $data)
     {
         $result = true;
@@ -138,20 +138,42 @@ class Mongodb extends \Zls_Session
             $record['expiry'] = $expiry;
             $this->__mongo_collection->save($record);
         }
+
         return true;
     }
+
     public function destroy($session_id)
     {
         unset($_SESSION);
         $query['_id'] = $session_id;
         $this->__mongo_collection->remove($query);
+
         return true;
     }
+
     public function gc($max = 0)
     {
         $query = [];
         $query['expiry'] = [':lt' => time()];
         $this->__mongo_collection->remove($query, ['justOne' => false]);
+
         return true;
+    }
+
+    public function swooleInit($sessionId)
+    {
+        $_SESSION = [];
+    }
+
+    public function swooleWrite($sessionId, $sessionData)
+    {
+    }
+
+    public function swooleRead($sessionId)
+    {
+    }
+
+    public function swooleDestroy($sessionId)
+    {
     }
 }

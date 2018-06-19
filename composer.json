@@ -14,7 +14,7 @@
     {
         "psr-4":
         {
-            "Zls\\Logger\\": "src/"
+            "Zls\\Session\\": "src/"
         }
     },
     "require": {}
