@@ -118,7 +118,6 @@ class Mysql extends \Zls_Session
 
     public function write($id, $sessionData)
     {
-
         $data['id'] = $id;
         $data['data'] = $sessionData;
         $data['timestamp'] = time() + intval($this->config['lifetime']);
@@ -126,6 +125,16 @@ class Mysql extends \Zls_Session
         $db->replace($this->dbTable, $data);
 
         return $db->execute() > 0;
+    }
+
+    public function swooleGc($maxlifetime = 0)
+    {
+        return $this->gc($maxlifetime);
+    }
+
+    public function gc($maxlifetime = 0)
+    {
+        return Z::db($this->dbConfig)->delete($this->dbTable, ['timestamp <' => time()])->execute() > 0;
     }
 
     public function open($save_path, $session_name)
@@ -138,10 +147,5 @@ class Mysql extends \Zls_Session
         Z::db($this->dbConfig)->close();
 
         return true;
-    }
-
-    public function gc($max = 0)
-    {
-        return Z::db($this->dbConfig)->delete($this->dbTable, ['timestamp <' => time()])->execute() > 0;
     }
 }

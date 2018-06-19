@@ -151,15 +151,6 @@ class Mongodb extends \Zls_Session
         return true;
     }
 
-    public function gc($max = 0)
-    {
-        $query = [];
-        $query['expiry'] = [':lt' => time()];
-        $this->__mongo_collection->remove($query, ['justOne' => false]);
-
-        return true;
-    }
-
     public function swooleInit($sessionId)
     {
         $_SESSION = [];
@@ -176,4 +167,19 @@ class Mongodb extends \Zls_Session
     public function swooleDestroy($sessionId)
     {
     }
+
+    public function swooleGc($maxlifetime = 0)
+    {
+
+    }
+
+    public function gc($max = 0)
+    {
+        $query = [];
+        $query['expiry'] = [':lt' => time()];
+        $this->__mongo_collection->remove($query, ['justOne' => false]);
+
+        return true;
+    }
+
 }

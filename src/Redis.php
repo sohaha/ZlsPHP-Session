@@ -55,8 +55,7 @@ class Redis extends \Zls_Session
         }
         $this->sessionHandle = Z::cache($config);
         $this->sessionConfig = $sessionConfig;
-        $session = $this->swooleRead($sessionId);
-        $_SESSION = !is_null($session) && is_array($session) ? $session : [];
+        $_SESSION = $this->swooleRead($sessionId) ?: [];
     }
 
     public function swooleRead($sessionId)
@@ -74,5 +73,10 @@ class Redis extends \Zls_Session
         return $this->sessionHandle->set($sessionId, serialize($sessionData), $this->sessionConfig['lifetime']);
     }
 
+
+    public function swooleGc($maxlifetime = 0)
+    {
+        return true;
+    }
 
 }

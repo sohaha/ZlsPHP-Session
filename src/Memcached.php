@@ -35,4 +35,9 @@ class Memcached extends \Zls_Session
     public function swooleDestroy($sessionId)
     {
     }
+
+    public function swooleGc($maxlifetime = 0)
+    {
+    }
+
 }
