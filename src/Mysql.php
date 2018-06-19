@@ -45,6 +45,7 @@ class Mysql extends \Zls_Session
         parent::__construct($configFileName);
         $cfg = Z::config()->getSessionConfig();
         $this->config['lifetime'] = $cfg['lifetime'];
+        $this->config['session_name'] = $cfg['session_name'];
         $this->setDbConfig();
     }
 
@@ -88,8 +89,10 @@ class Mysql extends \Zls_Session
         $db = Z::db($this->dbConfig);
         $result = $db->from($this->dbTable)->where(['id' => $id])->execute();
         if ($record = $result->row()) {
+            $time = time() + (int)$this->config['lifetime'];
+            $data['timestamp'] = $time;
             $where['id'] = $id;
-            $data['timestamp'] = time() + intval($this->config['lifetime']);
+            z::setCookieRaw($this->config['session_name'], $id, $time, '/');
             $db->update($this->dbTable, $data, $where)->execute();
 
             return $record['data'];
@@ -118,9 +121,11 @@ class Mysql extends \Zls_Session
 
     public function write($id, $sessionData)
     {
+        $time = time() + (int)$this->config['lifetime'];
         $data['id'] = $id;
         $data['data'] = $sessionData;
-        $data['timestamp'] = time() + intval($this->config['lifetime']);
+        $data['timestamp'] = $time;
+        z::setCookieRaw($this->config['session_name'], $id, $time, '/');
         $db = Z::db($this->dbConfig);
         $db->replace($this->dbTable, $data);
 

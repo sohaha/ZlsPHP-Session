@@ -18,6 +18,7 @@ class Redis extends \Zls_Session
 {
     private $sessionHandle;
     private $sessionConfig = [];
+    private $config = [];
 
     public function init()
     {
@@ -60,6 +61,8 @@ class Redis extends \Zls_Session
 
     public function swooleRead($sessionId)
     {
+        z::setCookieRaw($this->sessionConfig['session_name'], $sessionId, $this->sessionConfig['lifetime'] + time(), '/');
+
         return unserialize($this->sessionHandle->get($sessionId));
     }
 
@@ -70,6 +73,9 @@ class Redis extends \Zls_Session
 
     public function swooleWrite($sessionId, $sessionData)
     {
+
+        z::setCookieRaw($this->sessionConfig['session_name'], $sessionId, $this->sessionConfig['lifetime'] + time(), '/');
+
         return $this->sessionHandle->set($sessionId, serialize($sessionData), $this->sessionConfig['lifetime']);
     }
 
