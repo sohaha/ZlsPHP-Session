@@ -2,6 +2,8 @@
 
 namespace Zls\Session;
 
+use Z;
+
 /**
  * Mongodb托管
  * @author      影浅-Seekwe
@@ -24,13 +26,12 @@ return new \Zls\Session\Mongodb(array(
 	)
 );
 */
-use Z;
 
 class Mongodb extends \Zls_Session
 {
     private $__mongo_collection = null;
-    private $__current_session = null;
-    private $__mongo_conn = null;
+    private $__current_session  = null;
+    private $__mongo_conn       = null;
 
     public function __construct($configFileName)
     {
@@ -39,14 +40,14 @@ class Mongodb extends \Zls_Session
         $this->config['lifetime'] = $cfg['lifetime'];
     }
 
-    public function init($sessionID)
+    public function init($sessionId)
     {
         session_set_save_handler([&$this, 'open'], [&$this, 'close'], [&$this, 'read'],
-            [&$this, 'write'], [&$this, 'destroy'], [&$this, 'gc']
+                                 [&$this, 'write'], [&$this, 'destroy'], [&$this, 'gc']
         );
     }
 
-    public function open($session_path, $session_name)
+    public function open($path, $name)
     {
         $this->connect();
 
@@ -61,7 +62,7 @@ class Mongodb extends \Zls_Session
         $connection_string = sprintf('mongodb://%s:%s', $this->config['host'], $this->config['port']);
         if ($this->config['user'] != null && $this->config['password'] != null) {
             $connection_string = sprintf('mongodb://%s:%s@%s:%s/%s', $this->config['user'], $this->config['password'],
-                $this->config['host'], $this->config['port'], $this->config['database']
+                                         $this->config['host'], $this->config['port'], $this->config['database']
             );
         }
         $opts = ['connect' => true];
@@ -153,7 +154,7 @@ class Mongodb extends \Zls_Session
 
     public function swooleInit($sessionId)
     {
-        $_SESSION = [];
+        z::throwIf(true, 500, 'Swoole mode is not supported at this time');
     }
 
     public function swooleWrite($sessionId, $sessionData)
@@ -181,5 +182,4 @@ class Mongodb extends \Zls_Session
 
         return true;
     }
-
 }

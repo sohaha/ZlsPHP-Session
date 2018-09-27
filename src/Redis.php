@@ -2,6 +2,8 @@
 
 namespace Zls\Session;
 
+use Z;
+
 /**
  * Redis托管
  * @author        影浅
@@ -12,15 +14,12 @@ namespace Zls\Session;
  * @updatetime    2018-1-26 18:04:33
  * return new \Zls\Session\Redis(['path' => 'tcp://127.0.0.1:6379?timeout=3&persistent=0']);
  */
-use Z;
-
 class Redis extends \Zls_Session
 {
     private $sessionHandle;
     private $sessionConfig = [];
-    private $config = [];
 
-    public function init()
+    public function init($sessionId)
     {
         ini_set('session.save_handler', 'redis');
         ini_set('session.save_path', $this->config['path']);
@@ -31,7 +30,7 @@ class Redis extends \Zls_Session
         $sessionConfig = Z::config()->getSessionConfig();
         $path = $this->config['path'];
         $config = [
-            'class'  => '\Zls\Cache\Redis',
+            'class' => '\Zls\Cache\Redis',
             'config' => [],
         ];
         $masters = \explode(',', $path);
@@ -41,15 +40,15 @@ class Redis extends \Zls_Session
             $config['config'][] = [
                 'master' =>
                     [
-                        'type'     => 'tcp',
-                        'prefix'   => z::arrayGet($parseUrl, 'prefix', 'ZLSESSION'),
-                        'sock'     => '',
-                        'host'     => z::arrayGet($parseUrl, 'host', '127.0.0.1'),
-                        'port'     => z::arrayGet($parseUrl, 'port', 6379),
+                        'type' => 'tcp',
+                        'prefix' => z::arrayGet($parseUrl, 'prefix', 'ZLSESSION'),
+                        'sock' => '',
+                        'host' => z::arrayGet($parseUrl, 'host', '127.0.0.1'),
+                        'port' => z::arrayGet($parseUrl, 'port', 6379),
                         'password' => $auth ? \urldecode($auth) : null,
-                        'timeout'  => z::arrayGet($parseUrl, 'timeout', 3) * 1000,
-                        'retry'    => z::arrayGet($parseUrl, 'retry', 100),
-                        'db'       => z::arrayGet($parseUrl, 'database', 0),
+                        'timeout' => z::arrayGet($parseUrl, 'timeout', 3) * 1000,
+                        'retry' => z::arrayGet($parseUrl, 'retry', 100),
+                        'db' => z::arrayGet($parseUrl, 'database', 0),
                     ],
                 'slaves' => [],
             ];
@@ -66,9 +65,9 @@ class Redis extends \Zls_Session
         return unserialize($this->sessionHandle->get($sessionId));
     }
 
-    public function swooleDestroy($sessionId)
+    public function swooleDestroy($id)
     {
-        return $this->sessionHandle->delete($sessionId);
+        return $this->sessionHandle->delete($id);
     }
 
     public function swooleWrite($sessionId, $sessionData)
@@ -85,4 +84,33 @@ class Redis extends \Zls_Session
         return true;
     }
 
+    public function open($path, $name)
+    {
+
+    }
+
+    public function close()
+    {
+
+    }
+
+    public function read($key)
+    {
+
+    }
+
+    public function write($key, $val)
+    {
+
+    }
+
+    public function destroy($key)
+    {
+
+    }
+
+    public function gc($maxlifetime)
+    {
+
+    }
 }

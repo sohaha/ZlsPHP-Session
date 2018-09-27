@@ -2,6 +2,8 @@
 
 namespace Zls\Session;
 
+use z;
+
 /**
  * Memcached托管
  * @author      影浅-Seekwe
@@ -12,7 +14,7 @@ namespace Zls\Session;
  */
 class Memcached extends \Zls_Session
 {
-    public function init($sessionID)
+    public function init($sessionId)
     {
         ini_set('session.save_handler', 'memcached');
         ini_set('session.save_path', $this->config['path']);
@@ -21,7 +23,7 @@ class Memcached extends \Zls_Session
 
     public function swooleInit($sessionId)
     {
-        $_SESSION = [];
+        z::throwIf(true, 500, 'Swoole mode is not supported at this time');
     }
 
     public function swooleWrite($sessionId, $sessionData)
@@ -40,4 +42,34 @@ class Memcached extends \Zls_Session
     {
     }
 
+
+    public function open($path, $name)
+    {
+
+    }
+
+    public function close()
+    {
+
+    }
+
+    public function read($key)
+    {
+
+    }
+
+    public function write($key, $val)
+    {
+
+    }
+
+    public function destroy($key)
+    {
+
+    }
+
+    public function gc($maxlifetime)
+    {
+
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace Zls\Session;
 
+use Z;
+
 /**
  * MySQL托管
  * 表结构如下：
@@ -33,12 +35,12 @@ return new \Zls\Session\Mysql(array(
 	)
 );
 */
-use Z;
 
 class Mysql extends \Zls_Session
 {
     protected $dbConfig;
     protected $dbTable;
+    protected $db;
 
     public function __construct($configFileName)
     {
@@ -67,21 +69,21 @@ class Mysql extends \Zls_Session
         }
     }
 
-    public function init()
+    public function init($sessionId)
     {
         session_set_save_handler([$this, 'open'], [$this, 'close'], [$this, 'read'],
-            [$this, 'write'], [$this, 'destroy'], [$this, 'gc']
+                                 [$this, 'write'], [$this, 'destroy'], [$this, 'gc']
         );
     }
 
-    public function swooleInit($sessionId)
+    public function swooleInit($id)
     {
-        $_SESSION = $this->swooleRead($sessionId) ?: [];
+        $_SESSION = $this->swooleRead($id) ?: [];
     }
 
-    public function swooleRead($sessionId)
+    public function swooleRead($id)
     {
-        return unserialize($this->read($sessionId));
+        return unserialize($this->read($id));
     }
 
     public function read($id)
@@ -101,9 +103,9 @@ class Mysql extends \Zls_Session
         }
     }
 
-    public function swooleDestroy($sessionId)
+    public function swooleDestroy($id)
     {
-        return $this->destroy($sessionId);
+        return $this->destroy($id);
     }
 
     public function destroy($id)
@@ -114,9 +116,9 @@ class Mysql extends \Zls_Session
         return $db->delete($this->dbTable, ['id' => $id])->execute() > 0;
     }
 
-    public function swooleWrite($sessionId, $sessionData)
+    public function swooleWrite($id, $sessionData)
     {
-        return $this->write($sessionId, serialize($sessionData));
+        return $this->write($id, serialize($sessionData));
     }
 
     public function write($id, $sessionData)
@@ -134,7 +136,7 @@ class Mysql extends \Zls_Session
 
     public function swooleGc($maxlifetime = 0)
     {
-        return $this->gc($maxlifetime);
+        return true;
     }
 
     public function gc($maxlifetime = 0)
@@ -142,15 +144,14 @@ class Mysql extends \Zls_Session
         return Z::db($this->dbConfig)->delete($this->dbTable, ['timestamp <' => time()])->execute() > 0;
     }
 
-    public function open($save_path, $session_name)
+    public function open($path, $name)
     {
         return true;
     }
 
     public function close()
     {
-        Z::db($this->dbConfig)->close();
-
+        //Z::db($this->dbConfig)->close();
         return true;
     }
 }
