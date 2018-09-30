@@ -14,7 +14,7 @@ use Z;
  * @updatetime    2018-1-26 18:04:33
  * return new \Zls\Session\Redis(['path' => 'tcp://127.0.0.1:6379?timeout=3&persistent=0']);
  */
-class Redis extends \Zls_Session
+class Redis extends Session
 {
     private $sessionHandle;
     private $sessionConfig = [];
@@ -78,39 +78,4 @@ class Redis extends \Zls_Session
         return $this->sessionHandle->set($sessionId, serialize($sessionData), $this->sessionConfig['lifetime']);
     }
 
-
-    public function swooleGc($maxlifetime = 0)
-    {
-        return true;
-    }
-
-    public function open($path, $name)
-    {
-
-    }
-
-    public function close()
-    {
-
-    }
-
-    public function read($key)
-    {
-
-    }
-
-    public function write($key, $val)
-    {
-
-    }
-
-    public function destroy($key)
-    {
-
-    }
-
-    public function gc($maxlifetime)
-    {
-
-    }
 }

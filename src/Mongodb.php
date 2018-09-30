@@ -27,7 +27,7 @@ return new \Zls\Session\Mongodb(array(
 );
 */
 
-class Mongodb extends \Zls_Session
+class Mongodb extends Session
 {
     private $__mongo_collection = null;
     private $__current_session  = null;
@@ -150,28 +150,6 @@ class Mongodb extends \Zls_Session
         $this->__mongo_collection->remove($query);
 
         return true;
-    }
-
-    public function swooleInit($sessionId)
-    {
-        z::throwIf(true, 500, 'Swoole mode is not supported at this time');
-    }
-
-    public function swooleWrite($sessionId, $sessionData)
-    {
-    }
-
-    public function swooleRead($sessionId)
-    {
-    }
-
-    public function swooleDestroy($sessionId)
-    {
-    }
-
-    public function swooleGc($maxlifetime = 0)
-    {
-
     }
 
     public function gc($max = 0)

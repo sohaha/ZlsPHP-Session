@@ -36,7 +36,7 @@ return new \Zls\Session\Mysql(array(
 );
 */
 
-class Mysql extends \Zls_Session
+class Mysql extends Session
 {
     protected $dbConfig;
     protected $dbTable;
@@ -151,7 +151,6 @@ class Mysql extends \Zls_Session
 
     public function close()
     {
-        //Z::db($this->dbConfig)->close();
         return true;
     }
 }
